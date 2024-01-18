@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package task.v1;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/0x726f6f6b6965/task/protos/task/v1;v1";
+
+service TaskService {
+    // GetTask: get task information
+    rpc GetTask (GetTaskRequest) returns (Task) {
+        option (google.api.http) = {
+            get: "/tasks/{id}"
+        };
+    };
+    // GetTaskList: get a list of task information
+    rpc GetTaskList (GetTaskListRequest) returns (GetTaskListResponse) {
+        option (google.api.http) = {
+            get: "/tasks"
+        };
+    };
+    // CreateTask: create a task
+    rpc CreateTask (CreateTaskRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/tasks"
+            body: "*"
+        };
+    };
+    // DeleteTask: delete a task by id
+    rpc DeleteTask (DeleteTaskRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/tasks/{id}"
+        }; 
+    };
+    // UpdateTask: update a task information by id
+    rpc UpdateTask (UpdateTaskRequest) returns (Task) {
+        option (google.api.http) = {
+            put: "/tasks/{id}"
+            body: "*"
+        }; 
+    };
+}
+
+enum Status {
+    STATUS_INCOMPLETE = 0;
+    STATUS_COMPLETE = 1;
+}
+
+message Task {
+    string id = 1;
+    string name = 2;
+    Status status = 3;
+}
+
+message GetTaskRequest {
+    string id = 1;
+}
+
+message GetTaskListRequest {
+    int32 page_size = 1;
+    string page_token = 2;
+}
+
+message GetTaskListResponse {
+    repeated Task tasks = 1;
+    string next_token = 2;
+}
+
+message CreateTaskRequest {
+    string name = 1;
+    Status status = 2;
+}
+
+message DeleteTaskRequest {
+    string id = 1;
+}
+
+message UpdateTaskRequest {
+    string id = 1;
+    Task task = 2;
+    google.protobuf.FieldMask update_mask = 3;
+}

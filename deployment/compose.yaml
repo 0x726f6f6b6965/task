@@ -1,0 +1,41 @@
+services:
+  redis:
+    image: redis:7.2.3
+    restart: always
+    command: >
+      --requirepass ${REDIS_PASSWORD}
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+  nginx:
+    restart: always
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./deployment/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - taks-svc1
+      - taks-svc2
+  taks-svc1:
+    image: task-svc:v0.0.1
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./deployment/application-1.yaml:/app/application.yaml
+    depends_on:
+      - redis
+  taks-svc2:
+    image: task-svc:v0.0.1
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./deployment/application-2.yaml:/app/application.yaml
+    depends_on:
+      - redis
+  
+
+
