@@ -2,18 +2,15 @@ package utils
 
 import (
 	"encoding/base64"
-	"encoding/gob"
-	"errors"
+	"encoding/json"
 	"fmt"
-	"io"
-	"strings"
 )
 
 type PageToken struct {
 	// Id
-	Id string
+	Id string `json:"id"`
 	// Size
-	Size int64
+	Size int64 `json:"size"`
 }
 
 // String returns a string representation of the page token.
@@ -23,19 +20,19 @@ func (p *PageToken) String() string {
 
 // encodePageTokenStruct encodes an arbitrary struct as a page token.
 func encodePageTokenStruct(v interface{}) string {
-	var b strings.Builder
-	base64Encoder := base64.NewEncoder(base64.URLEncoding, &b)
-	gobEncoder := gob.NewEncoder(base64Encoder)
-	_ = gobEncoder.Encode(v)
-	_ = base64Encoder.Close()
-	return b.String()
+	b, _ := json.Marshal(v)
+	encodedStr := base64.URLEncoding.EncodeToString(b)
+	return encodedStr
 }
 
 // DecodePageTokenStruct decodes an encoded page token into an arbitrary struct.
 func DecodePageTokenStruct(s string, v interface{}) error {
-	dec := gob.NewDecoder(base64.NewDecoder(base64.URLEncoding, strings.NewReader(s)))
-	if err := dec.Decode(v); err != nil && !errors.Is(err, io.EOF) {
+	b, err := base64.URLEncoding.DecodeString(s)
+	if err != nil {
 		return fmt.Errorf("decode page token struct: %w", err)
+	}
+	if err = json.Unmarshal(b, v); err != nil {
+		return fmt.Errorf("unmarshal error: %w", err)
 	}
 	return nil
 }
