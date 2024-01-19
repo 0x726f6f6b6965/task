@@ -22,7 +22,7 @@ service TaskService {
         };
     };
     // CreateTask: create a task
-    rpc CreateTask (CreateTaskRequest) returns (google.protobuf.Empty) {
+    rpc CreateTask (CreateTaskRequest) returns (Task) {
         option (google.api.http) = {
             post: "/tasks"
             body: "*"

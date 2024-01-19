@@ -27,10 +27,15 @@ type taskService struct {
 }
 
 // CreateTask - create a task
-func (service *taskService) CreateTask(ctx context.Context, req *pbTask.CreateTaskRequest) (*emptypb.Empty, error) {
+func (service *taskService) CreateTask(ctx context.Context, req *pbTask.CreateTaskRequest) (*pbTask.Task, error) {
 	if helper.IsEmpty(req.GetName()) {
 		return nil, helper.RequiredFieldErr("name is empty", "name")
 	}
+
+	if _, ok := pbTask.Status_name[int32(req.Status)]; !ok {
+		return nil, helper.InvalidErr("status invalid", "status", req.Status)
+	}
+
 	var (
 		id string
 	)
@@ -74,7 +79,7 @@ func (service *taskService) CreateTask(ctx context.Context, req *pbTask.CreateTa
 		service.logger.Error("CreateTask redis zadd error", zap.Error(err))
 		return nil, helper.InternalErr("redis zadd error")
 	}
-	return &emptypb.Empty{}, nil
+	return task, nil
 }
 
 // DeleteTask - delete a task by id
@@ -193,6 +198,9 @@ func (service *taskService) UpdateTask(ctx context.Context, req *pbTask.UpdateTa
 	}
 	if req.Task == nil {
 		return nil, helper.RequiredFieldErr("task is empty", "task")
+	}
+	if _, ok := pbTask.Status_name[int32(req.Task.Status)]; !ok {
+		return nil, helper.InvalidErr("status invalid", "status", req.Task.Status)
 	}
 	data, err := service.redisClient.Get(ctx, fmt.Sprintf("%s:%s", TaskID, req.GetId())).Bytes()
 	if err != nil {

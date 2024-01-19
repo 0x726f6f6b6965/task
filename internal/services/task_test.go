@@ -70,8 +70,9 @@ func TestCreateTask(t *testing.T) {
 		Member: g.String(),
 	}).SetVal(1)
 
-	_, err := service.CreateTask(context.Background(), req)
+	resp, err := service.CreateTask(context.Background(), req)
 	assert.Nil(t, err)
+	assert.Equal(t, task, resp)
 }
 
 func TestCreateTaskEmptyName(t *testing.T) {
@@ -94,6 +95,15 @@ func TestCreateTaskIdExist(t *testing.T) {
 
 	_, err := service.CreateTask(context.Background(), req)
 	assert.Contains(t, err.Error(), "please try again later")
+}
+
+func TestCreateTaskInvalidStatus(t *testing.T) {
+	var (
+		req = &pbTask.CreateTaskRequest{Name: "test-name", Status: 3}
+	)
+
+	_, err := service.CreateTask(context.Background(), req)
+	assert.Contains(t, err.Error(), "status invalid")
 }
 
 func TestGetTask(t *testing.T) {
@@ -213,6 +223,15 @@ func TestUpdateTaskNotFound(t *testing.T) {
 
 	_, err := service.UpdateTask(context.Background(), req)
 	assert.Contains(t, err.Error(), "task not found")
+}
+
+func TestUpdateTaskInvalidStatus(t *testing.T) {
+	var (
+		req = &pbTask.UpdateTaskRequest{Id: "test-id", Task: &pbTask.Task{Status: 3}}
+	)
+
+	_, err := service.UpdateTask(context.Background(), req)
+	assert.Contains(t, err.Error(), "status invalid")
 }
 
 func TestGetTaskList(t *testing.T) {

@@ -36,7 +36,7 @@ type TaskServiceClient interface {
 	// GetTaskList: get a list of task information
 	GetTaskList(ctx context.Context, in *GetTaskListRequest, opts ...grpc.CallOption) (*GetTaskListResponse, error)
 	// CreateTask: create a task
-	CreateTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*Task, error)
 	// DeleteTask: delete a task by id
 	DeleteTask(ctx context.Context, in *DeleteTaskRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// UpdateTask: update a task information by id
@@ -69,8 +69,8 @@ func (c *taskServiceClient) GetTaskList(ctx context.Context, in *GetTaskListRequ
 	return out, nil
 }
 
-func (c *taskServiceClient) CreateTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *taskServiceClient) CreateTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*Task, error) {
+	out := new(Task)
 	err := c.cc.Invoke(ctx, TaskService_CreateTask_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ type TaskServiceServer interface {
 	// GetTaskList: get a list of task information
 	GetTaskList(context.Context, *GetTaskListRequest) (*GetTaskListResponse, error)
 	// CreateTask: create a task
-	CreateTask(context.Context, *CreateTaskRequest) (*emptypb.Empty, error)
+	CreateTask(context.Context, *CreateTaskRequest) (*Task, error)
 	// DeleteTask: delete a task by id
 	DeleteTask(context.Context, *DeleteTaskRequest) (*emptypb.Empty, error)
 	// UpdateTask: update a task information by id
@@ -123,7 +123,7 @@ func (UnimplementedTaskServiceServer) GetTask(context.Context, *GetTaskRequest) 
 func (UnimplementedTaskServiceServer) GetTaskList(context.Context, *GetTaskListRequest) (*GetTaskListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTaskList not implemented")
 }
-func (UnimplementedTaskServiceServer) CreateTask(context.Context, *CreateTaskRequest) (*emptypb.Empty, error) {
+func (UnimplementedTaskServiceServer) CreateTask(context.Context, *CreateTaskRequest) (*Task, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTask not implemented")
 }
 func (UnimplementedTaskServiceServer) DeleteTask(context.Context, *DeleteTaskRequest) (*emptypb.Empty, error) {
