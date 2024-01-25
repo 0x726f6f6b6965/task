@@ -142,13 +142,16 @@ func (service *taskService) GetTaskList(ctx context.Context, req *pbTask.GetTask
 	var (
 		start string = "-"
 		size  int64  = 25
-		token        = &utils.PageToken{}
+		token        = utils.NewPageToken("", 0)
 	)
 
 	if !helper.IsEmpty(req.PageToken) {
-		utils.DecodePageTokenStruct(req.PageToken, token)
-		start = "(" + token.Id
-		size = token.Size
+		token, err := utils.GetPageTokenByString(req.PageToken)
+		// if we get the wrong token, ignore it.
+		if err == nil {
+			start = "(" + token.GetID()
+			size = token.GetSize()
+		}
 	}
 
 	if req.PageSize != 0 {
@@ -183,9 +186,9 @@ func (service *taskService) GetTaskList(ctx context.Context, req *pbTask.GetTask
 	}
 
 	if len(keys) >= int(size) {
-		token.Id = keys[len(keys)-1]
-		token.Size = size
-		resp.NextToken = token.String()
+		token.SetID(keys[len(keys)-1])
+		token.SetSize(size)
+		resp.NextToken = token.GetToken()
 	}
 
 	return resp, nil

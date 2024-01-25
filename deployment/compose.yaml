@@ -19,7 +19,7 @@ services:
       - taks-svc1
       - taks-svc2
   taks-svc1:
-    image: task-svc:v0.0.1
+    image: task-svc:${TASK_VERSION}
     restart: always
     env_file:
       - .env
@@ -28,7 +28,7 @@ services:
     depends_on:
       - redis
   taks-svc2:
-    image: task-svc:v0.0.1
+    image: task-svc:${TASK_VERSION}
     restart: always
     env_file:
       - .env

@@ -268,10 +268,7 @@ func TestGetTaskList(t *testing.T) {
 
 func TestGetTaskListWithToken(t *testing.T) {
 	var (
-		token = utils.PageToken{
-			Id:   "25",
-			Size: 25,
-		}
+		token   = utils.NewPageToken("25", 25)
 		keys    = make([]string, 25)
 		expects = make([]*pbTask.Task, 25)
 	)
@@ -281,7 +278,7 @@ func TestGetTaskListWithToken(t *testing.T) {
 	rmock.ExpectZRangeArgs(redis.ZRangeArgs{
 		Key:    SortSet,
 		ByLex:  true,
-		Start:  "(" + token.Id,
+		Start:  "(" + token.GetID(),
 		Stop:   "+",
 		Offset: 0,
 		Count:  25,
@@ -298,7 +295,7 @@ func TestGetTaskListWithToken(t *testing.T) {
 		rmock.ExpectGet(fmt.Sprintf("%s:%s", TaskID, val)).SetVal(string(data))
 	}
 
-	resp, err := service.GetTaskList(ctx, &pbTask.GetTaskListRequest{PageToken: token.String()})
+	resp, err := service.GetTaskList(ctx, &pbTask.GetTaskListRequest{PageToken: token.GetToken()})
 	assert.Nil(t, err)
 	for i, expect := range expects {
 		assert.Equal(t, expect, resp.Tasks[i])
