@@ -42,3 +42,5 @@
    - If we consider the high availability and scalability, we need to deploy the Redis with clusters.
 3. Are the tasks causally related?
    - If yes, we need some data fields to record it.
+4. How can we optimize the operation of Redis?
+   - We can use scripts to call Redis to reduce the number of Redis calls to improve efficiency.
