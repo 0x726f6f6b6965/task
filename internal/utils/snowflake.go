@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"math/big"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -15,6 +16,13 @@ const (
 	shiftNode   uint8  = 14
 	// 2022-01-01 00:00:00
 	baseEpoch uint64 = 1640966400000
+)
+
+var (
+	// onceInitGenerator guarantee initialize generator only once
+	onceInitGenerator sync.Once
+	// rootGenerator - the root generator
+	rootGenerator *generator
 )
 
 type Generator interface {
@@ -45,10 +53,14 @@ func NewGenerator(node uint64) (Generator, error) {
 	if node > maxNode {
 		return nil, fmt.Errorf("invalid node id; must be 0 ≤ id < %d", node)
 	}
+	// singleton
+	onceInitGenerator.Do(func() {
+		rootGenerator = &generator{
+			nodeID: node,
+		}
+	})
 
-	return &generator{
-		nodeID: node,
-	}, nil
+	return rootGenerator, nil
 }
 
 func (g *generator) Next() (Sequence, error) {
