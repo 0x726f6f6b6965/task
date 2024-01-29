@@ -4,6 +4,7 @@ go 1.21.5
 
 require (
 	github.com/go-redis/redismock/v9 v9.2.0
+	github.com/google/wire v0.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.4.0

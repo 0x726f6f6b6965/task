@@ -8,15 +8,8 @@ import (
 	"os"
 
 	"github.com/0x726f6f6b6965/task/internal/config"
-	zaplog "github.com/0x726f6f6b6965/task/internal/log"
-	"github.com/0x726f6f6b6965/task/internal/services"
-	"github.com/0x726f6f6b6965/task/internal/utils"
-	pbTask "github.com/0x726f6f6b6965/task/protos/task/v1"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+
 	"github.com/joho/godotenv"
-	"github.com/redis/go-redis/v9"
-	"go.uber.org/zap"
-	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/yaml.v3"
 )
 
@@ -35,44 +28,15 @@ func main() {
 		return
 	}
 
-	zaplog, cleanup, err := zaplog.NewLogger(&cfg.Log)
+	mux, cleanup, err := initApplication(context.Background(), &cfg)
 	if err != nil {
-		log.Fatal("create log error", err)
-		return
+		log.Fatal("initialize application error", err)
 	}
 	defer cleanup()
 
-	generator, err := utils.NewGenerator(cfg.NodeID)
-	if err != nil {
-		zaplog.Error("create generator fail", zap.Error(err))
-		return
-	}
-
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:       fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port),
-		Username:   cfg.Redis.User,
-		Password:   cfg.Redis.Password,
-		DB:         cfg.Redis.DB,
-		MaxRetries: cfg.Redis.MaxRetries,
-	})
-	defer redisClient.Close()
-
-	taskService := services.NewTaskService(generator, redisClient, zaplog)
-	mux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{
-			EmitUnpopulated: true,
-			UseEnumNumbers:  true,
-		},
-	}))
-	err = pbTask.RegisterTaskServiceHandlerServer(context.Background(), mux, taskService)
-	if err != nil {
-		zaplog.Error("failed to register", zap.Error(err))
-		return
-	}
-
-	zaplog.Info("server listening", zap.Int("port", cfg.Rest.Port))
+	log.Printf("server listening; port: %d", cfg.Rest.Port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", cfg.Rest.Port), mux); err != nil {
-		zaplog.Error("failed to serve", zap.Error(err))
+		log.Fatalf("failed to serve; err: %v", err)
 		return
 	}
 }

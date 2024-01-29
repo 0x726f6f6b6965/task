@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Added singleton pattern for sequence generator.
+- Using wire to implement dependency injection.
 
 ### Changed
 - Used lua script to add/delete task.
