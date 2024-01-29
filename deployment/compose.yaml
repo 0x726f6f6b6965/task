@@ -8,6 +8,11 @@ services:
       - ${REDIS_PORT}:${REDIS_PORT}
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   nginx:
     restart: always
     image: nginx:alpine
@@ -26,7 +31,8 @@ services:
     volumes:
       - ./deployment/application-1.yaml:/app/application.yaml
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
   taks-svc2:
     image: task-svc:${TASK_VERSION}
     restart: always
@@ -35,7 +41,8 @@ services:
     volumes:
       - ./deployment/application-2.yaml:/app/application.yaml
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
   
 
 

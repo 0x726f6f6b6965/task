@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 - Added singleton pattern for sequence generator.
 
 ### Changed
-- TBD
+- Used lua script to add/delete task.
 
 ### Deprecated
 - TBD

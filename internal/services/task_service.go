@@ -63,21 +63,12 @@ func (service *taskService) CreateTask(ctx context.Context, req *pbTask.CreateTa
 		service.logger.Error("CreateTask unmarshal error", zap.Error(err))
 		return nil, helper.InternalErr("unmarshal error")
 	}
+	err = service.redisClient.Eval(ctx, helper.AddTask,
+		[]string{fmt.Sprintf("%s:%s", TaskID, id), SortSet}, data, id).Err()
 
-	err = service.redisClient.Set(ctx, fmt.Sprintf("%s:%s", TaskID, id), data, -1).Err()
-	if err != nil {
-		service.logger.Error("CreateTask redis set error", zap.Error(err))
-		return nil, helper.InternalErr("redis set error")
-	}
-
-	err = service.redisClient.ZAdd(ctx, SortSet, redis.Z{
-		Score:  seq.Float64(),
-		Member: id,
-	}).Err()
-
-	if err != nil {
-		service.logger.Error("CreateTask redis zadd error", zap.Error(err))
-		return nil, helper.InternalErr("redis zadd error")
+	if err != nil && !errors.Is(err, redis.Nil) {
+		service.logger.Error("CreateTask redis error", zap.Error(err))
+		return nil, helper.InternalErr("redis error")
 	}
 	return task, nil
 }
@@ -91,24 +82,12 @@ func (service *taskService) DeleteTask(ctx context.Context, req *pbTask.DeleteTa
 	if exist == 0 {
 		return nil, helper.NotFoundErr("task not found", "id", req.GetId())
 	}
-	ok, err := service.redisClient.Del(ctx, fmt.Sprintf("%s:%s", TaskID, req.GetId())).Result()
-	if err != nil {
-		service.logger.Error("DeleteTask redis del error", zap.String("id", req.GetId()), zap.Error(err))
-		return nil, helper.InternalErr("redis del error")
-	}
 
-	if ok != 1 {
-		service.logger.Error("DeleteTask del fail", zap.String("id", req.GetId()))
-		return nil, helper.InternalErr("please try again later")
-	}
-	ok, err = service.redisClient.ZRem(ctx, SortSet, req.GetId()).Result()
-	if err != nil {
-		service.logger.Error("DeleteTask redis zrem error", zap.String("id", req.GetId()), zap.Error(err))
-		return nil, helper.InternalErr("redis zrem error")
-	}
+	err := service.redisClient.Eval(ctx, helper.DeleteTask,
+		[]string{fmt.Sprintf("%s:%s", TaskID, req.GetId()), SortSet}, req.GetId()).Err()
 
-	if ok != 1 {
-		service.logger.Error("DeleteTask zrem fail", zap.String("id", req.GetId()))
+	if err != nil && !errors.Is(err, redis.Nil) {
+		service.logger.Error("DeleteTask fail", zap.String("id", req.GetId()))
 		return nil, helper.InternalErr("please try again later")
 	}
 	return &emptypb.Empty{}, nil
