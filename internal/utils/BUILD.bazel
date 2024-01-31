@@ -1,0 +1,21 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "utils",
+    srcs = [
+        "pageination.go",
+        "snowflake.go",
+    ],
+    importpath = "github.com/0x726f6f6b6965/task/internal/utils",
+    visibility = ["//:__subpackages__"],
+)
+
+go_test(
+    name = "utils_test",
+    srcs = [
+        "pageination_test.go",
+        "snowflake_test.go",
+    ],
+    embed = [":utils"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)

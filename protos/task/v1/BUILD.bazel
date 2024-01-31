@@ -1,0 +1,27 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "task",
+    srcs = [
+        "task_service.pb.go",
+        "task_service.pb.gw.go",
+        "task_service_grpc.pb.go",
+    ],
+    importpath = "github.com/0x726f6f6b6965/task/protos/task/v1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_grpc_ecosystem_grpc_gateway_v2//runtime",
+        "@com_github_grpc_ecosystem_grpc_gateway_v2//utilities",
+        "@org_golang_google_genproto_googleapis_api//annotations",
+        "@org_golang_google_grpc//:grpc",
+        "@org_golang_google_grpc//codes",
+        "@org_golang_google_grpc//grpclog",
+        "@org_golang_google_grpc//metadata",
+        "@org_golang_google_grpc//status",
+        "@org_golang_google_protobuf//proto",
+        "@org_golang_google_protobuf//reflect/protoreflect",
+        "@org_golang_google_protobuf//runtime/protoimpl",
+        "@org_golang_google_protobuf//types/known/emptypb",
+        "@org_golang_google_protobuf//types/known/fieldmaskpb",
+    ],
+)

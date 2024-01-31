@@ -1,0 +1,32 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "services",
+    srcs = ["task_service.go"],
+    importpath = "github.com/0x726f6f6b6965/task/internal/services",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/helper",
+        "//internal/utils",
+        "//protos/task/v1:task",
+        "@com_github_redis_go_redis_v9//:go-redis",
+        "@org_golang_google_protobuf//types/known/emptypb",
+        "@org_uber_go_zap//:zap",
+    ],
+)
+
+go_test(
+    name = "services_test",
+    srcs = ["task_test.go"],
+    embed = [":services"],
+    deps = [
+        "//internal/helper",
+        "//internal/utils",
+        "//protos/task/v1:task",
+        "@com_github_go_redis_redismock_v9//:redismock",
+        "@com_github_redis_go_redis_v9//:go-redis",
+        "@com_github_stretchr_testify//assert",
+        "@org_golang_google_protobuf//types/known/fieldmaskpb",
+        "@org_uber_go_zap//:zap",
+    ],
+)

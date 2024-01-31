@@ -1,0 +1,1 @@
+common --enable_bzlmod --workspace_status_command="sh ./tag_var.sh"

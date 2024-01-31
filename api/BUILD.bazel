@@ -1,0 +1,59 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_tarball")
+
+go_library(
+    name = "api_lib",
+    srcs = [
+        "main.go",
+        "provider.go",
+        "wire_gen.go",
+    ],
+    importpath = "github.com/0x726f6f6b6965/task/api",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//internal/config",
+        "//internal/log",
+        "//internal/services",
+        "//internal/utils",
+        "//protos/task/v1:task",
+        "@com_github_google_wire//:wire",
+        "@com_github_grpc_ecosystem_grpc_gateway_v2//runtime",
+        "@com_github_joho_godotenv//:godotenv",
+        "@com_github_redis_go_redis_v9//:go-redis",
+        "@in_gopkg_yaml_v3//:yaml_v3",
+        "@org_golang_google_protobuf//encoding/protojson",
+        "@org_uber_go_zap//:zap",
+    ],
+)
+
+go_binary(
+    name = "api",
+    embed = [":api_lib"],
+    visibility = ["//visibility:public"],
+    goarch = "arm64",
+    goos = "linux",
+    # data = ["//:env-data"],
+)
+
+# Put api go_binary into a tar layer.
+pkg_tar(
+    name = "task-service",
+    srcs = [":api"],
+    # If the binary depends on RUNFILES, uncomment the attribute below.
+    # include_runfiles = True
+)
+
+oci_image(
+    name = "image",
+    base = "@distroless_base",
+    entrypoint = ["/api"],
+    tars = [":task-service"],
+)
+
+oci_tarball(
+    name = "tarball",
+    # Use the image built for the exec platform rather than the target platform
+    image = ":image",
+    repo_tags = ":tag.txt",
+)

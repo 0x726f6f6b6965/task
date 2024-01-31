@@ -43,7 +43,34 @@ service-down:
 .PHONY: test-go
 test-go:
 	@go test --coverprofile=coverage.out ./... 
-	@go tool cover -html=coverage.out  
+	@go tool cover -html=coverage.out 
+
+## bzl-test: Test go file via Bazel
+.PHONY: bzl-test
+bzl-test:
+	@sh ./tag_var.sh
+	@bazel test --test_output=summary --test_timeout=2 -t-  //...
+	@rm ./api/tag.txt
+
+## bzl-build: Build image via Bazel
+.PHONY: bzl-build
+bzl-build:
+	@sh ./tag_var.sh
+	@bazel build //api
+	@bazel build //api:task-service
+	@bazel build //api:image
+	@bazel build //api:tarball
+	@rm ./api/tag.txt
+
+## bzl-clean: Clean the output build by Bazel  
+.PHONY: bzl-clean
+bzl-clean:
+	@bazel clean --async
+
+## bzl-load: Load the image build by Bazel in Docker
+.PHONY: bzl-load
+bzl-load:
+	@docker load --input $(shell bazel cquery //api:tarball --output=files)
 
 ## help: Print usage information
 .PHONY: help

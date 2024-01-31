@@ -1,0 +1,13 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "log",
+    srcs = ["logger.go"],
+    importpath = "github.com/0x726f6f6b6965/task/internal/log",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/config",
+        "@org_uber_go_zap//:zap",
+        "@org_uber_go_zap//zapcore",
+    ],
+)

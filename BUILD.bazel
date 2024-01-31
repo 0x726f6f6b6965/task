@@ -1,0 +1,5 @@
+load("@gazelle//:def.bzl", "gazelle")
+
+# gazelle:prefix github.com/0x726f6f6b6965/task
+# gazelle:proto disable_global
+gazelle(name = "gazelle")

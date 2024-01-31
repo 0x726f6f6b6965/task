@@ -1,3 +1,4 @@
 temp.text
 coverage.out
 api/.env
+bazel-*
