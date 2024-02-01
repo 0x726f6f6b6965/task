@@ -1,3 +1,3 @@
 #!/usr/bin bash
-echo TASK_VERSION task-svc:$(git describe --tags --abbrev=0)
-echo task-svc:$(git describe --tags --abbrev=0) > api/tag.txt
+echo TASK_VERSION task-svc:$TASK_VERSION
+echo task-svc:$TASK_VERSION > api/tag.txt

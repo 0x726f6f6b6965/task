@@ -27,7 +27,7 @@ proto-clean:
 ## gen-images: Generate serivces' image
 .PHONY: gen-images
 gen-images:
-	@docker build --tag task-svc:$(shell git describe --tags --abbrev=0) -f ./build/Dockerfile .
+	@docker build --tag task-svc:$(TASK_VERSION) -f ./build/Dockerfile .
 
 ## service-up: Run the all components by deployment/compose.yaml
 .PHONY: service-up

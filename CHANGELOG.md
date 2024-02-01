@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Used lua script to add/delete task.
+- Used the TASK_VERSION on .env variable to build image.
 
 ### Deprecated
 - TBD
