@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - Added singleton pattern for sequence generator.
 - Using wire to implement dependency injection.
 - Added a new action to force update the change log.
+- Added k8s deployment via terraform.
 
 ### Changed
 - Used lua script to add/delete task.
