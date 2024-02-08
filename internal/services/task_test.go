@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/0x726f6f6b6965/task/internal/helper"
 	"github.com/0x726f6f6b6965/task/internal/utils"
 	pbTask "github.com/0x726f6f6b6965/task/protos/task/v1"
 	"github.com/go-redis/redismock/v9"
@@ -64,11 +65,7 @@ func TestCreateTask(t *testing.T) {
 	)
 
 	rmock.ExpectExists(key).SetVal(0)
-	rmock.ExpectSet(key, data, -1).SetVal("OK")
-	rmock.ExpectZAdd(SortSet, redis.Z{
-		Score:  g.Float64(),
-		Member: g.String(),
-	}).SetVal(1)
+	rmock.ExpectEval(helper.AddTask, []string{key, SortSet}, data, g.String()).RedisNil()
 
 	resp, err := service.CreateTask(context.Background(), req)
 	assert.Nil(t, err)
@@ -145,8 +142,7 @@ func TestDeleteTask(t *testing.T) {
 		key  = fmt.Sprintf("%s:%s", TaskID, g.String())
 	)
 	rmock.ExpectExists(key).SetVal(1)
-	rmock.ExpectDel(key).SetVal(1)
-	rmock.ExpectZRem(SortSet, g.String()).SetVal(1)
+	rmock.ExpectEval(helper.DeleteTask, []string{key, SortSet}, g.String()).RedisNil()
 
 	_, err := service.DeleteTask(context.Background(), &pbTask.DeleteTaskRequest{Id: g.String()})
 	assert.Nil(t, err)

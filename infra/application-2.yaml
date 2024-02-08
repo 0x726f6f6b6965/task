@@ -1,0 +1,19 @@
+name: "task-service-2"
+
+rest:
+  host: "localhost"
+  port: 64530
+
+redis:
+  host: "redis-service"
+  port: 6379
+  db: 0
+  max-retries: 3
+
+node-id: 3
+
+log:
+  service-name: "task-service-2"
+  level: -1
+  time-format: "2006-01-02T15:04:05Z07:00"
+  timestamp-enabled: true
