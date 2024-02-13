@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file.
 - TBD
 
 ### Fixed
-- TBD
+- Fixed snowflake sequence overflow issue through channels.
 
 ### Security
 - TBD

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/big"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -31,12 +30,10 @@ type Generator interface {
 }
 
 type generator struct {
-	// epoch is the first 41 bits
-	epoch uint64
 	// nodeID is the node ID that the Snowflake generator will use for the next 8 bits
 	nodeID uint64
 	// sequence is the last 14 bits, usually an incremented number but can be anything. If set to 0, it will be random.
-	sequence uint64
+	sequence chan uint64
 }
 
 type Sequence interface {
@@ -56,8 +53,31 @@ func NewGenerator(node uint64) (Generator, error) {
 	// singleton
 	onceInitGenerator.Do(func() {
 		rootGenerator = &generator{
-			nodeID: node,
+			nodeID:   node,
+			sequence: make(chan uint64),
 		}
+		go func() {
+			var (
+				seq chan uint64
+			)
+
+			for {
+				var reset <-chan time.Time
+				if seq == nil {
+					reset = time.After(time.Millisecond)
+				}
+				select {
+				case <-reset:
+					seq = make(chan uint64, 1)
+					seq <- 0
+				case current := <-seq:
+					seq = nil
+					for i := current; current <= maxSequence; i++ {
+						rootGenerator.sequence <- i
+					}
+				}
+			}
+		}()
 	})
 
 	return rootGenerator, nil
@@ -65,22 +85,12 @@ func NewGenerator(node uint64) (Generator, error) {
 
 func (g *generator) Next() (Sequence, error) {
 	current := uint64(time.Now().UnixMilli())
-	if current > maxEpoch {
+	if (current - baseEpoch) > maxEpoch {
 		return nil, fmt.Errorf("timestamp overflow")
 	}
 
-	prev := atomic.LoadUint64(&g.epoch)
-	var seq uint64 = 0
-	if current > prev {
-		atomic.StoreUint64(&g.sequence, 0)
-		atomic.StoreUint64(&g.epoch, current)
-	} else {
-		seq = atomic.AddUint64(&g.sequence, 1)
-	}
+	seq := <-g.sequence
 
-	if seq > maxSequence {
-		return nil, fmt.Errorf("sequence overflow")
-	}
 	nodeId := g.nodeID << shiftNode
 	result := (current-baseEpoch)<<shiftEpoch + nodeId + seq
 	num := big.NewInt(0)
