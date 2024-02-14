@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 - TBD
 
 ### Changed
-- TBD
+- Used big.Int to replace Sequence interface.
 
 ### Deprecated
 - TBD

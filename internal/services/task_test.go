@@ -301,19 +301,7 @@ func TestGetTaskListWithToken(t *testing.T) {
 
 // mock
 type mockGenerator struct{}
-type mockSequencer struct{}
 
-func (m *mockGenerator) Next() (utils.Sequence, error) {
-	return &mockSequencer{}, nil
-}
-
-func (m *mockSequencer) Uint64() uint64 {
-	return num.Uint64()
-}
-func (m *mockSequencer) String() string {
-	return num.String()
-}
-func (m *mockSequencer) Float64() float64 {
-	result, _ := num.Float64()
-	return result
+func (m *mockGenerator) Next() (*big.Int, error) {
+	return num, nil
 }

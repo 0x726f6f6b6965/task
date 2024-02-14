@@ -26,24 +26,14 @@ var (
 
 type Generator interface {
 	// Next - get an unused sequence
-	Next() (Sequence, error)
+	Next() (*big.Int, error)
 }
 
 type generator struct {
 	// nodeID is the node ID that the Snowflake generator will use for the next 8 bits
 	nodeID uint64
-	// sequence is the last 14 bits, usually an incremented number but can be anything. If set to 0, it will be random.
+	// sequence is the last 14 bits, usually an incremented number but can be anything.
 	sequence chan uint64
-}
-
-type Sequence interface {
-	Uint64() uint64
-	String() string
-	Float64() float64
-}
-
-type sequence struct {
-	num *big.Int
 }
 
 func NewGenerator(node uint64) (Generator, error) {
@@ -83,7 +73,7 @@ func NewGenerator(node uint64) (Generator, error) {
 	return rootGenerator, nil
 }
 
-func (g *generator) Next() (Sequence, error) {
+func (g *generator) Next() (*big.Int, error) {
 	current := uint64(time.Now().UnixMilli())
 	if (current - baseEpoch) > maxEpoch {
 		return nil, fmt.Errorf("timestamp overflow")
@@ -94,18 +84,6 @@ func (g *generator) Next() (Sequence, error) {
 	nodeId := g.nodeID << shiftNode
 	result := (current-baseEpoch)<<shiftEpoch + nodeId + seq
 	num := big.NewInt(0)
-	return &sequence{num: num.SetUint64(result)}, nil
-}
-
-func (s *sequence) String() string {
-	return s.num.String()
-}
-
-func (s *sequence) Uint64() uint64 {
-	return s.num.Uint64()
-}
-
-func (s *sequence) Float64() float64 {
-	result, _ := s.num.Float64()
-	return result
+	num.SetUint64(result)
+	return num, nil
 }
