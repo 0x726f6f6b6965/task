@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 - TBD
 
 ### Changed
-- Used big.Int to replace Sequence interface.
+- TBD
 
 ### Deprecated
 - TBD
@@ -17,10 +17,16 @@ All notable changes to this project will be documented in this file.
 - TBD
 
 ### Fixed
-- Fixed snowflake sequence overflow issue through channels.
+- TBD
 
 ### Security
 - TBD
+
+## [0.0.3] - 2024-02-14
+### Changed
+- Used big.Int to replace Sequence interface.
+### Fixed
+- Fixed snowflake sequence overflow issue through channels.
 
 ## [0.0.2] - 2024-02-08
 ### Added
@@ -28,7 +34,6 @@ All notable changes to this project will be documented in this file.
 - Using wire to implement dependency injection.
 - Added a new action to force update the change log.
 - Added k8s deployment via terraform.
-
 ### Changed
 - Used lua script to add/delete task.
 
